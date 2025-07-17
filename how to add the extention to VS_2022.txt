@@ -1,0 +1,176 @@
+﻿# Manual VSIX Extension Installation Guide
+
+When the standard VSIX installer fails, you can manually install Visual Studio extensions by placing the files directly in the extensions directory.
+
+## Prerequisites
+
+- Visual Studio 2022 (Community, Professional, or Enterprise)
+- Compiled extension DLL
+- Valid extension manifest file
+
+## Step 1: Locate Visual Studio Extensions Directory
+
+Navigate to the Visual Studio extensions folder:
+
+### For Regular Visual Studio Instance:
+```
+%USERPROFILE%\AppData\Local\Microsoft\VisualStudio\17.0_[instance_id]\Extensions\
+```
+
+### For Experimental Instance (recommended for testing):
+```
+%USERPROFILE%\AppData\Local\Microsoft\VisualStudio\17.0_[instance_id]Exp\Extensions\
+```
+
+**Note:** The `[instance_id]` is a unique identifier like `f3a4e6a5`. You may have multiple folders - choose any one.
+
+## Step 2: Create Extension Folder Structure
+
+1. **Navigate** to the Extensions directory
+2. **Create a publisher folder** (e.g., "Your Company Name" or your name)
+3. **Inside the publisher folder**, create your extension folder (e.g., "YourExtensionName")
+
+**Example structure:**
+```
+Extensions\
+└── Daniel Liezrowice\
+    └── ParasoftSARIF\
+        ├── extension.vsixmanifest
+        ├── YourExtension.dll
+        └── YourExtension.pkgdef
+```
+
+## Step 3: Prepare Required Files
+
+### A. Extension Manifest (extension.vsixmanifest)
+Create or copy your manifest file. Ensure it's named exactly `extension.vsixmanifest` (not `source.extension.vsixmanifest`).
+
+**Sample manifest content:**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="YourExtension.your-guid-here" Version="1.0" Language="en-US" Publisher="Your Company" />
+    <DisplayName>Your Extension Name</DisplayName>
+    <Description xml:space="preserve">Your extension description</Description>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Professional" Version="[17.0, 18.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[17.0, 18.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="YourExtension.dll" />
+  </Assets>
+</PackageManifest>
+```
+
+### B. Extension DLL
+Copy your compiled extension DLL from your build output (usually `bin\Debug\net472\` or `bin\Release\net472\`).
+
+### C. Package Definition File (YourExtension.pkgdef)
+Create a `.pkgdef` file with the same name as your DLL:
+
+**Sample content:**
+```
+[$RootKey$\Packages\{your-package-guid-here}]
+@="YourNamespace.YourPackageClass"
+"InprocServer32"="$WinDir$\SYSTEM32\MSCOREE.DLL"
+"Class"="YourNamespace.YourPackageClass"
+"Assembly"="YourExtension, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+
+[$RootKey$\Menus]
+"{your-package-guid-here}"=",Menus.ctmenu,1"
+```
+
+## Step 4: Update Visual Studio Configuration
+
+After placing all files, update Visual Studio's configuration:
+
+### For Regular Instance:
+```cmd
+"C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe" /updateconfiguration
+```
+
+### For Experimental Instance:
+```cmd
+"C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe" /rootsuffix Exp /updateconfiguration
+```
+
+## Step 5: Launch Visual Studio
+
+### For Regular Instance:
+Start Visual Studio normally.
+
+### For Experimental Instance:
+```cmd
+"C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe" /rootsuffix Exp
+```
+
+## Step 6: Verify Installation
+
+1. **Check Extensions Manager:**
+   - Go to `Extensions → Manage Extensions`
+   - Click `Installed` tab
+   - Look for your extension
+
+2. **Test Functionality:**
+   - Check if your menu items appear in the appropriate menus
+   - Test your extension's features
+
+## Troubleshooting
+
+### Extension Not Appearing
+1. **Verify file names** are correct (especially `extension.vsixmanifest`)
+2. **Check GUID consistency** between manifest and .pkgdef files
+3. **Run update configuration** command again
+4. **Restart Visual Studio** completely
+
+### Check Activity Log
+If issues persist, enable logging:
+```cmd
+"C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe" /rootsuffix Exp /log
+```
+
+Check the log file at:
+```
+%APPDATA%\Microsoft\VisualStudio\17.0_[instance_id]Exp\ActivityLog.xml
+```
+
+### Permission Issues
+- Ensure you have **write permissions** to the Extensions directory
+- Run Visual Studio as **Administrator** if necessary
+
+## Advantages of Manual Installation
+
+- **Bypasses VSIX installer issues**
+- **Easier debugging** during development
+- **Direct file access** for troubleshooting
+- **Works when automatic installation fails**
+
+## When to Use Manual Installation
+
+- VSIX installer shows "corrupted package" errors
+- Automatic VSIX installation fails repeatedly
+- Development/testing scenarios
+- Corporate environments with restricted installers
+- Custom deployment scenarios
+
+## Important Notes
+
+- **Experimental Instance** is recommended for testing to avoid affecting your main VS installation
+- **GUID consistency** is crucial - use the same GUID in manifest, .pkgdef, and your code
+- **File permissions** must allow Visual Studio to read the extension files
+- **Version compatibility** should match your target Visual Studio version
