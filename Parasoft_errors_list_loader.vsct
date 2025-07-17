@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Commands package="guidParasoftCmdPackage">
+    <Groups>
+      <Group guid="guidParasoftCmdPackage" id="MyMenuGroup" priority="0x0600"/>
+    </Groups>
+    <Buttons>
+      <Button guid="guidParasoftCmdPackage" id="cmdidLoadSarif" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Load SARIF Report</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="guidParasoftCmdPackage" value="{c1af0903-1399-4dc0-b802-6efb2990b16d}">
+      <IDSymbol name="cmdidLoadSarif" value="0x0100"/>
+      <IDSymbol name="MyMenuGroup" value="0x1020"/>
+    </GuidSymbol>
+    <GuidSymbol name="guidImages" value="{11f3f507-8ee4-45ac-9c53-579dfd19199e}">
+      <IDSymbol name="bmpPic1" value="1" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
